@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Use 3D Tiles Styling to assign colors based on material or find all office buildings."
+    />
+    <meta name="cesium-sandcastle-labels" content="3D-Tiles-samples" />
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script
+      type="text/javascript"
+      src="../../../Build/CesiumUnminified/Cesium.js"
+      nomodule
+    ></script>
+    <script type="module" src="../load-cesium-es6.js"></script>
+  </head>
+
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+    <style>
+      @import url(../templates/bucket.css);
+    </style>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div id="loadingOverlay">
+      <h1>Loading...</h1>
+    </div>
+    <div id="toolbar"></div>
+    <script id="cesium_sandcastle_script">
+      window.startup = function (Cesium) {
+        "use strict";
+        //Sandcastle_Begin
+
+        const viewer = new Cesium.Viewer("cesiumContainer");
+
+        // Stores the tileset that is currently selected
+        let currentTileset;
+
+        // Creates the tileset for the sample with the given name.
+        function createTileset(exampleName) {
+          if (Cesium.defined(currentTileset)) {
+            viewer.scene.primitives.remove(currentTileset);
+            currentTileset = undefined;
+          }
+          // Create the tileset, and move it to a certain position on the globe
+          currentTileset = viewer.scene.primitives.add(
+            new Cesium.Cesium3DTileset({
+              url: `http://localhost:8003/1.1/BoundingBoxTests/${exampleName}/tileset.json`,
+              debugShowBoundingVolume: true,
+            })
+          );
+          currentTileset.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+            Cesium.Cartesian3.fromDegrees(-75.152325, 39.94704, 0)
+          );
+          const offset = new Cesium.HeadingPitchRange(
+            Cesium.Math.toRadians(-22.5),
+            Cesium.Math.toRadians(-22.5),
+            12.0
+          );
+          viewer.zoomTo(currentTileset, offset);
+        }
+
+        //============================================================================
+        // Sandcastle UI setup:
+
+        // Create one entry for the list of examples that can
+        // be selected in the dropdown menu. Selecting one of
+        // these will load the tileset for the sample with the
+        // given name, and display the given info text in the
+        // infoTexDisplay
+        function createSampleOption(name, infoText) {
+          return {
+            text: name,
+            onselect: function () {
+              createTileset(name);
+            },
+          };
+        }
+
+        // Create the list of available samples, and add them
+        // to the sandcastle toolbar
+        const sampleOptions = [
+          createSampleOption("0_0_0-1_1_2", "0_0_0-1_1_2"),
+          createSampleOption("0_0_0-1_2_1", "0_0_0-1_2_1"),
+          createSampleOption("0_0_0-2_1_1", "0_0_0-2_1_1"),
+          createSampleOption("0_0_2-1_1_4", "0_0_2-1_1_4"),
+          createSampleOption("0_2_0-1_4_1", "0_2_0-1_4_1"),
+          createSampleOption("2_0_0-4_1_1", "2_0_0-4_1_1"),
+        ];
+        Sandcastle.addToolbarMenu(sampleOptions);
+
+        //Sandcastle_End
+        Sandcastle.finishedLoading();
+      };
+      if (typeof Cesium !== "undefined") {
+        window.startupCalled = true;
+        window.startup(Cesium);
+      }
+    </script>
+  </body>
+</html>
